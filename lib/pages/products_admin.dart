@@ -51,7 +51,7 @@ class ProductsAdmin extends StatelessWidget {
             CreateProduct(
               addProduct: addProduct,
             ),
-            ProductList(productsList, updateProduct)
+            ProductList(productsList, updateProduct, deleteProduct)
           ],
         ),
       ),

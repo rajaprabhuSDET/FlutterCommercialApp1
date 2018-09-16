@@ -102,11 +102,11 @@ class CreateProductState extends State<CreateProduct> {
     Navigator.pushReplacementNamed(context, '/home');
   }
 
-  Widget build(BuildContext context) {
+  Widget _buildPageContent(BuildContext context){
     final double screenWidth = MediaQuery.of(context).size.width;
     final double customwidth = screenWidth > 550.0 ? 500.0 : screenWidth * 0.95;
     final double paddingwidth = screenWidth - customwidth;
-    final Widget pageContent = GestureDetector(
+    return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
@@ -133,6 +133,11 @@ class CreateProductState extends State<CreateProduct> {
         ),
       ),
     );
+  }
+
+  Widget build(BuildContext context) {
+    
+    final Widget pageContent = _buildPageContent(context);
     return widget.product == null
         ? pageContent
         : Scaffold(

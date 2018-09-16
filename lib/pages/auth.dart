@@ -8,9 +8,12 @@ class Auth extends StatefulWidget {
 }
 
 class AuthState extends State<Auth> {
-  String email;
-  String password;
-  bool acceptTerms = false;
+  final Map<String, dynamic> authCredentials = {
+    'email': null,
+    'password': null,
+    'acceptSwitch': false
+  };
+  final GlobalKey<FormState> _authState = GlobalKey<FormState>();
 
   BoxDecoration _backgroundImage() {
     return BoxDecoration(
@@ -32,25 +35,25 @@ class AuthState extends State<Auth> {
         filled: true,
       ),
       validator: (String value) {
-        if (value.isEmpty || value.contains('\@')) {
+        if (value.isEmpty ||
+            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                .hasMatch(value)) {
           return 'Field is required';
         }
       },
       onSaved: (String value) {
-        setState(() {
-          email = value;
-        });
+        authCredentials['email'] = value;
       },
     );
   }
 
   Widget _acceptSwitch() {
     return SwitchListTile(
-      value: acceptTerms,
+      value: authCredentials['acceptSwitch'],
       title: Text('Accept Terms !'),
       onChanged: (bool value) {
         setState(() {
-          acceptTerms = value;
+          authCredentials['acceptSwitch'] = value;
         });
       },
     );
@@ -66,24 +69,22 @@ class AuthState extends State<Auth> {
         filled: true,
       ),
       validator: (String value) {
-        if (value.isEmpty ) {
+        if (value.isEmpty || value.length < 6) {
           return 'Field is required';
         }
       },
       onSaved: (String value) {
-        setState(() {
-          password = value;
-        });
+        authCredentials['password'] = value;
       },
     );
   }
 
   void _submitForm() {
-    if (password == 'winthegame') {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      Navigator.pushReplacementNamed(context, '/');
+    if (!_authState.currentState.validate()) {
+      return;
     }
+    _authState.currentState.save();
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override
@@ -101,23 +102,26 @@ class AuthState extends State<Auth> {
           child: SingleChildScrollView(
             child: Container(
               width: customwidth,
-              child: Column(
-                children: <Widget>[
-                  _usernameTextfield(),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  _passwordTextfield(),
-                  _acceptSwitch(),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  RaisedButton(
-                    textColor: Colors.white,
-                    child: Text('LOGIN'),
-                    onPressed: _submitForm,
-                  )
-                ],
+              child: Form(
+                key: _authState,
+                child: Column(
+                  children: <Widget>[
+                    _usernameTextfield(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    _passwordTextfield(),
+                    _acceptSwitch(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    RaisedButton(
+                      textColor: Colors.white,
+                      child: Text('LOGIN'),
+                      onPressed: _submitForm,
+                    )
+                  ],
+                ),
               ),
             ),
           ),
