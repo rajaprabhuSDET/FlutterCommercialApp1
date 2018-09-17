@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widgets/helper/ensure-visible.dart';
+import '../model/productinfo.dart';
 
 class CreateProduct extends StatefulWidget {
   final Function addProduct;
   final Function updateProduct;
-  final Map<String, dynamic> product;
+  final ProductInfo product;
   final int productIndex;
   CreateProduct(
       {this.addProduct, this.updateProduct, this.product, this.productIndex});
@@ -32,7 +33,7 @@ class CreateProductState extends State<CreateProduct> {
       child: TextFormField(
         focusNode: _titleFocusNode,
         decoration: InputDecoration(labelText: 'Product Title'),
-        initialValue: widget.product == null ? '' : widget.product['title'],
+        initialValue: widget.product == null ? '' : widget.product.title,
         onSaved: (String value) {
           _formData['title'] = value;
         },
@@ -52,8 +53,7 @@ class CreateProductState extends State<CreateProduct> {
         focusNode: _descriptionFocusNode,
         maxLines: 4,
         decoration: InputDecoration(labelText: 'Product Description'),
-        initialValue:
-            widget.product == null ? '' : widget.product['description'],
+        initialValue: widget.product == null ? '' : widget.product.description,
         onSaved: (String value) {
           _formData['description'] = value;
         },
@@ -74,7 +74,7 @@ class CreateProductState extends State<CreateProduct> {
         keyboardType: TextInputType.number,
         decoration: InputDecoration(labelText: 'Product Price'),
         initialValue:
-            widget.product == null ? '' : widget.product['price'].toString(),
+            widget.product == null ? '' : widget.product.price.toString(),
         onSaved: (String value) {
           _formData['price'] = double.parse(value);
         },
@@ -94,15 +94,23 @@ class CreateProductState extends State<CreateProduct> {
     }
     _fieldState.currentState.save();
     if (widget.product == null) {
-      widget.addProduct(_formData);
+      widget.addProduct(ProductInfo(
+          title: _formData['title'],
+          description: _formData['description'],
+          image: _formData['imageURL'],
+          price: _formData['price']));
     } else {
-      widget.updateProduct(widget.productIndex, _formData);
+      widget.updateProduct(widget.productIndex, ProductInfo(
+          title: _formData['title'],
+          description: _formData['description'],
+          image: _formData['imageURL'],
+          price: _formData['price']));
     }
 
     Navigator.pushReplacementNamed(context, '/home');
   }
 
-  Widget _buildPageContent(BuildContext context){
+  Widget _buildPageContent(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double customwidth = screenWidth > 550.0 ? 500.0 : screenWidth * 0.95;
     final double paddingwidth = screenWidth - customwidth;
@@ -136,7 +144,6 @@ class CreateProductState extends State<CreateProduct> {
   }
 
   Widget build(BuildContext context) {
-    
     final Widget pageContent = _buildPageContent(context);
     return widget.product == null
         ? pageContent

@@ -3,6 +3,7 @@ import './pages/home.dart';
 import './pages/productdetails.dart';
 import './pages/products_admin.dart';
 import './pages/auth.dart';
+import './model/productinfo.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
@@ -17,16 +18,16 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppStateless extends State<MyApp> {
-  final List<Map<String, dynamic>> products = [];
+  final List<ProductInfo> products = [];
 
-  void addGlass(Map<String, dynamic> glassproduct) {
+  void addGlass(ProductInfo glassproduct) {
     setState(() {
       products.add(glassproduct);
       print('inside');
     });
   }
 
-  void _updateGlass(int index, Map<String, dynamic> updatedproduct) {
+  void _updateGlass(int index, ProductInfo updatedproduct) {
     setState(() {
       products[index] = updatedproduct;
     });
@@ -62,10 +63,10 @@ class MyAppStateless extends State<MyApp> {
           final int index = int.parse(pathElement[2]);
           return MaterialPageRoute<bool>(
             builder: (BuildContext context) => ProductDetails(
-                products[index]['title'],
-                products[index]['imageURL'],
-                products[index]['price'],
-                products[index]['description']),
+                products[index].title,
+                products[index].image,
+                products[index].price,
+                products[index].description),
           );
         }
         return null;

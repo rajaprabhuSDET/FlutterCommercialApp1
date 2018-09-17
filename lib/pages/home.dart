@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/products/products.dart';
+import '../model/productinfo.dart';
 
 class HomePage extends StatelessWidget {
-  final List<Map<String, dynamic>> products;
+  final List<ProductInfo> products;
 
   HomePage(this.products); // {}
 
