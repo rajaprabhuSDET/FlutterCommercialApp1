@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import '../widgets/helper/ensure-visible.dart';
 import '../model/productinfo.dart';
+import '../scopedmodel/productmodel.dart';
 
 class CreateProduct extends StatefulWidget {
-  final Function addProduct;
-  final Function updateProduct;
-  final ProductInfo product;
-  final int productIndex;
-  CreateProduct(
-      {this.addProduct, this.updateProduct, this.product, this.productIndex});
   @override
   State<StatefulWidget> createState() {
     return CreateProductState();
@@ -27,13 +23,13 @@ class CreateProductState extends State<CreateProduct> {
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
 
-  Widget _buildProductTitleTextField() {
+  Widget _buildProductTitleTextField(ProductInfo product) {
     return EnsureVisibleWhenFocused(
       focusNode: _titleFocusNode,
       child: TextFormField(
         focusNode: _titleFocusNode,
         decoration: InputDecoration(labelText: 'Product Title'),
-        initialValue: widget.product == null ? '' : widget.product.title,
+        initialValue: product == null ? '' : product.title,
         onSaved: (String value) {
           _formData['title'] = value;
         },
@@ -46,14 +42,14 @@ class CreateProductState extends State<CreateProduct> {
     );
   }
 
-  Widget _buildProductDescriptionTextField() {
+  Widget _buildProductDescriptionTextField(ProductInfo product) {
     return EnsureVisibleWhenFocused(
       focusNode: _descriptionFocusNode,
       child: TextFormField(
         focusNode: _descriptionFocusNode,
         maxLines: 4,
         decoration: InputDecoration(labelText: 'Product Description'),
-        initialValue: widget.product == null ? '' : widget.product.description,
+        initialValue: product == null ? '' : product.description,
         onSaved: (String value) {
           _formData['description'] = value;
         },
@@ -66,15 +62,14 @@ class CreateProductState extends State<CreateProduct> {
     );
   }
 
-  Widget _buildProductPriceTextField() {
+  Widget _buildProductPriceTextField(ProductInfo product) {
     return EnsureVisibleWhenFocused(
       focusNode: _priceFocusNode,
       child: TextFormField(
         focusNode: _priceFocusNode,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(labelText: 'Product Price'),
-        initialValue:
-            widget.product == null ? '' : widget.product.price.toString(),
+        initialValue: product == null ? '' : product.price.toString(),
         onSaved: (String value) {
           _formData['price'] = double.parse(value);
         },
@@ -88,19 +83,33 @@ class CreateProductState extends State<CreateProduct> {
     );
   }
 
-  void _actionOnPressed() {
+  Widget _buildButton() {
+    return ScopedModelDescendant<ProductModel>(
+      builder: (BuildContext context, Widget child, ProductModel model) {
+        return RaisedButton(
+          textColor: Colors.white,
+          child: Text('Save'),
+          onPressed: () => _actionOnPressed(model.addGlass, model.updateGlass,
+              selectedProductIndex: model.selectedProductIndex),
+        );
+      },
+    );
+  }
+
+  void _actionOnPressed(Function addProduct, Function updateProduct,
+      {int selectedProductIndex}) {
     if (!_fieldState.currentState.validate()) {
       return;
     }
     _fieldState.currentState.save();
-    if (widget.product == null) {
-      widget.addProduct(ProductInfo(
+    if (selectedProductIndex == null) {
+      addProduct(ProductInfo(
           title: _formData['title'],
           description: _formData['description'],
           image: _formData['imageURL'],
           price: _formData['price']));
     } else {
-      widget.updateProduct(widget.productIndex, ProductInfo(
+      updateProduct(ProductInfo(
           title: _formData['title'],
           description: _formData['description'],
           image: _formData['imageURL'],
@@ -110,7 +119,7 @@ class CreateProductState extends State<CreateProduct> {
     Navigator.pushReplacementNamed(context, '/home');
   }
 
-  Widget _buildPageContent(BuildContext context) {
+  Widget _buildPageContent(BuildContext context, ProductInfo product) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double customwidth = screenWidth > 550.0 ? 500.0 : screenWidth * 0.95;
     final double paddingwidth = screenWidth - customwidth;
@@ -125,17 +134,13 @@ class CreateProductState extends State<CreateProduct> {
           child: ListView(
             padding: EdgeInsets.symmetric(horizontal: paddingwidth / 2),
             children: <Widget>[
-              _buildProductTitleTextField(),
-              _buildProductDescriptionTextField(),
-              _buildProductPriceTextField(),
+              _buildProductTitleTextField(product),
+              _buildProductDescriptionTextField(product),
+              _buildProductPriceTextField(product),
               SizedBox(
                 height: 10.0,
               ),
-              RaisedButton(
-                textColor: Colors.white,
-                child: Text('Save'),
-                onPressed: _actionOnPressed,
-              )
+              _buildButton()
             ],
           ),
         ),
@@ -144,14 +149,19 @@ class CreateProductState extends State<CreateProduct> {
   }
 
   Widget build(BuildContext context) {
-    final Widget pageContent = _buildPageContent(context);
-    return widget.product == null
-        ? pageContent
-        : Scaffold(
-            appBar: AppBar(
-              title: Text('Edit Product'),
-            ),
-            body: pageContent,
-          );
+    return ScopedModelDescendant<ProductModel>(
+      builder: (BuildContext context, Widget child, ProductModel model) {
+        final Widget pageContent =
+            _buildPageContent(context, model.selectedProduct);
+        return model.selectedProductIndex == null
+            ? pageContent
+            : Scaffold(
+                appBar: AppBar(
+                  title: Text('Edit Product'),
+                ),
+                body: pageContent,
+              );
+      },
+    );
   }
 }

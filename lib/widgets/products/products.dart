@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import './products_card.dart';
+import '../../scopedmodel/productmodel.dart';
 import '../../model/productinfo.dart';
 
 class Products extends StatelessWidget {
-  final List<ProductInfo> productslist;
-  Products(this.productslist);
-
   Widget build(BuildContext context) {
-    return _buildProductList();
+    return ScopedModelDescendant<ProductModel>(
+      builder: (BuildContext context, Widget child, ProductModel model) {
+       return _buildProductList(model.products);
+      },
+    );
   }
 
-  Widget _buildProductList() {
+  Widget _buildProductList(List<ProductInfo> productslist) {
     Widget productcard = Center(
       child: Text('No Items. Please add some idems'),
     );

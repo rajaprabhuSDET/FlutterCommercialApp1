@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
-
+import 'package:scoped_model/scoped_model.dart';
+import '../scopedmodel/productmodel.dart';
 import './product_create.dart';
 import '../model/productinfo.dart';
 
 class ProductList extends StatelessWidget {
-  final Function updateProduct;
-  final Function deleteProduct;
-  final List<ProductInfo> products;
-
-  ProductList(this.products, this.updateProduct, this.deleteProduct);
-
   Widget _buildIconButton(BuildContext context, int index) {
-    return IconButton(
-      icon: Icon(Icons.edit),
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return CreateProduct(
-                product: products[index],
-                updateProduct: updateProduct,
-                productIndex: index,
-              );
-            },
-          ),
+    return ScopedModelDescendant<ProductModel>(
+      builder: (BuildContext context, Widget child, ProductModel model) {
+        return IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            model.selectProduct(index);
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return CreateProduct();
+                },
+              ),
+            );
+          },
         );
       },
     );
@@ -31,33 +27,40 @@ class ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        return Dismissible(
-          key: Key(products[index].title),
-          onDismissed: (DismissDirection direction) {
-            if (direction == DismissDirection.endToStart) {
-              deleteProduct(index);
-            } else if (direction == DismissDirection.startToEnd) {
-              deleteProduct(index);
-            }
+    return ScopedModelDescendant<ProductModel>(
+      builder: (BuildContext context, Widget child, ProductModel model) {
+        return ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return Dismissible(
+              key: Key(model.products[index].title),
+              onDismissed: (DismissDirection direction) {
+                if (direction == DismissDirection.endToStart) {
+                  model.selectProduct(index);
+                  model.deleteGlass();
+                } else if (direction == DismissDirection.startToEnd) {
+                  model.deleteGlass();
+                }
+              },
+              background: Container(color: Colors.red),
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage:
+                            AssetImage(model.products[index].image),
+                      ),
+                      title: Text(model.products[index].title),
+                      subtitle:
+                          Text('\$${model.products[index].price.toString()}'),
+                      trailing: _buildIconButton(context, index)),
+                  Divider()
+                ],
+              ),
+            );
           },
-          background: Container(color: Colors.red),
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: AssetImage(products[index].image),
-                  ),
-                  title: Text(products[index].title),
-                  subtitle: Text('\$${products[index].price.toString()}'),
-                  trailing: _buildIconButton(context, index)),
-              Divider()
-            ],
-          ),
+          itemCount: model.products.length,
         );
       },
-      itemCount: products.length,
     );
   }
 }

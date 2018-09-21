@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'dart:async';
 import '../widgets/products/title_default.dart';
+import '../scopedmodel/productmodel.dart';
+import '../model/productinfo.dart';
 
 class ProductDetails extends StatelessWidget {
-  final String title;
-  final String imageURL;
-  final double price;
-  final String description;
-
-  ProductDetails(this.title, this.imageURL, this.price, this.description) {
+  final productIndex;
+  ProductDetails(this.productIndex) {
     print('inside constructor');
   }
 
@@ -39,7 +38,7 @@ class ProductDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressPrice() {
+  Widget _buildAddressPrice(double price) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -65,22 +64,23 @@ class ProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        Navigator.pop(context, false);
-        return Future.value(false);
-      },
-      child: Scaffold(
+    return WillPopScope(onWillPop: () {
+      Navigator.pop(context, false);
+      return Future.value(false);
+    }, child: ScopedModelDescendant<ProductModel>(
+        builder: (BuildContext context, Widget child, ProductModel model) {
+          final ProductInfo info= model.products[productIndex];
+      return Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          title: Text(info.title),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Image.asset(imageURL),
+            Image.asset(info.image),
             Container(
               padding: EdgeInsets.all(10.0),
-              child: TitleDefault(title),
+              child: TitleDefault(info.title),
             ),
             /* Container(
               padding: EdgeInsets.all(10.0),
@@ -90,17 +90,17 @@ class ProductDetails extends StatelessWidget {
                 onPressed: () => _alertDialoug(context),
               ),
             ),*/
-            _buildAddressPrice(),
+            _buildAddressPrice(info.price),
             Container(
               padding: EdgeInsets.all(10.0),
               child: Text(
-                description,
+                info.description,
                 textAlign: TextAlign.center,
               ),
             ),
           ],
         ),
-      ),
-    );
+      );
+    }));
   }
 }
