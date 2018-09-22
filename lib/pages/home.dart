@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
+
 import '../widgets/products/products.dart';
+import '../scopedmodel/mainmodel.dart';
 
 class HomePage extends StatelessWidget {
-
-
   Widget _buildSideDrawerr(BuildContext context) {
     return Drawer(
       child: Column(
@@ -23,11 +24,19 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       drawer: _buildSideDrawerr(context),
       appBar: AppBar(
-        title: Text('Raja Prabhu Trial1'),
+        title: Text('Home'),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.favorite),
-            onPressed: () {},
+          ScopedModelDescendant<MainModel>(
+            builder: (BuildContext context, Widget child, MainModel model) {
+              return IconButton(
+                icon: Icon(model.displayFavouritesOnly
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                onPressed: () {
+                  model.toggleDisplayMode();
+                },
+              );
+            },
           )
         ],
       ),

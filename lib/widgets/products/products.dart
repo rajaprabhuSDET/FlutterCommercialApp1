@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import './products_card.dart';
-import '../../scopedmodel/productmodel.dart';
+import '../../scopedmodel/mainmodel.dart';
 import '../../model/productinfo.dart';
 
 class Products extends StatelessWidget {
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<ProductModel>(
-      builder: (BuildContext context, Widget child, ProductModel model) {
-       return _buildProductList(model.products);
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+       return _buildProductList(model.displayedProducts);
       },
     );
   }

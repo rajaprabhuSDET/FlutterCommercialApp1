@@ -3,6 +3,8 @@ import './price_tag.dart';
 import './title_default.dart';
 import './address_tag.dart';
 import '../../model/productinfo.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../../scopedmodel/mainmodel.dart';
 
 class ProductsCard extends StatelessWidget {
   final ProductInfo productslist;
@@ -35,7 +37,18 @@ class ProductsCard extends StatelessWidget {
           onPressed: () => Navigator.pushNamed<bool>(
               context, '/product/' + productIndex.toString()),
         ),
-        IconButton(icon: Icon(Icons.favorite_border), onPressed: () {}),
+        ScopedModelDescendant<MainModel>(
+          builder: (BuildContext context, Widget child, MainModel model) {
+            return IconButton(
+                icon: Icon(model.allproducts[productIndex].isFavourite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                onPressed: () {
+                  model.selectProduct(productIndex);
+                  model.toggleFavouriteStatus();
+                });
+          },
+        )
       ],
     );
   }
@@ -48,6 +61,7 @@ class ProductsCard extends StatelessWidget {
           Image.asset(productslist.image),
           _buildaddressPricetag(),
           AddressTag('Balaji Nagar Vandiyur Madurai 625020.'),
+          Text(productslist.email),
           _buildButtons(context),
         ],
       ),

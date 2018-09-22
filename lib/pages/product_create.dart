@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../widgets/helper/ensure-visible.dart';
 import '../model/productinfo.dart';
-import '../scopedmodel/productmodel.dart';
+import '../scopedmodel/mainmodel.dart';
 
 class CreateProduct extends StatefulWidget {
   @override
@@ -84,39 +84,36 @@ class CreateProductState extends State<CreateProduct> {
   }
 
   Widget _buildButton() {
-    return ScopedModelDescendant<ProductModel>(
-      builder: (BuildContext context, Widget child, ProductModel model) {
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
         return RaisedButton(
           textColor: Colors.white,
           child: Text('Save'),
-          onPressed: () => _actionOnPressed(model.addGlass, model.updateGlass,
+          onPressed: () => _actionOnPressed(
+              model.addGlass, model.updateGlass, model.selectProduct,
               selectedProductIndex: model.selectedProductIndex),
         );
       },
     );
   }
 
-  void _actionOnPressed(Function addProduct, Function updateProduct,
+  void _actionOnPressed(
+      Function addProduct, Function updateProduct, Function selectProduct,
       {int selectedProductIndex}) {
     if (!_fieldState.currentState.validate()) {
       return;
     }
     _fieldState.currentState.save();
     if (selectedProductIndex == null) {
-      addProduct(ProductInfo(
-          title: _formData['title'],
-          description: _formData['description'],
-          image: _formData['imageURL'],
-          price: _formData['price']));
+      addProduct(_formData['title'], _formData['description'],
+          _formData['imageURL'], _formData['price']);
     } else {
-      updateProduct(ProductInfo(
-          title: _formData['title'],
-          description: _formData['description'],
-          image: _formData['imageURL'],
-          price: _formData['price']));
+      updateProduct(_formData['title'], _formData['description'],
+          _formData['imageURL'], _formData['price']);
     }
 
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/home')
+        .then((_) => selectProduct(null));
   }
 
   Widget _buildPageContent(BuildContext context, ProductInfo product) {
@@ -149,8 +146,8 @@ class CreateProductState extends State<CreateProduct> {
   }
 
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<ProductModel>(
-      builder: (BuildContext context, Widget child, ProductModel model) {
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
         final Widget pageContent =
             _buildPageContent(context, model.selectedProduct);
         return model.selectedProductIndex == null

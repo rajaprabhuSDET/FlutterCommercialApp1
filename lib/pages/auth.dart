@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
+
+import '../scopedmodel/mainmodel.dart';
 
 class Auth extends StatefulWidget {
   @override
@@ -8,7 +11,7 @@ class Auth extends StatefulWidget {
 }
 
 class AuthState extends State<Auth> {
-  final Map<String, dynamic> authCredentials = {
+  final Map<String, dynamic> _authCredentials = {
     'email': null,
     'password': null,
     'acceptSwitch': false
@@ -42,18 +45,18 @@ class AuthState extends State<Auth> {
         }
       },
       onSaved: (String value) {
-        authCredentials['email'] = value;
+        _authCredentials['email'] = value;
       },
     );
   }
 
   Widget _acceptSwitch() {
     return SwitchListTile(
-      value: authCredentials['acceptSwitch'],
+      value: _authCredentials['acceptSwitch'],
       title: Text('Accept Terms !'),
       onChanged: (bool value) {
         setState(() {
-          authCredentials['acceptSwitch'] = value;
+          _authCredentials['acceptSwitch'] = value;
         });
       },
     );
@@ -74,16 +77,17 @@ class AuthState extends State<Auth> {
         }
       },
       onSaved: (String value) {
-        authCredentials['password'] = value;
+        _authCredentials['password'] = value;
       },
     );
   }
 
-  void _submitForm() {
+  void _submitForm(Function login) {
     if (!_authState.currentState.validate()) {
       return;
     }
     _authState.currentState.save();
+    login(_authCredentials['email'], _authCredentials['password']);
     Navigator.pushReplacementNamed(context, '/home');
   }
 
@@ -115,10 +119,15 @@ class AuthState extends State<Auth> {
                     SizedBox(
                       height: 10.0,
                     ),
-                    RaisedButton(
-                      textColor: Colors.white,
-                      child: Text('LOGIN'),
-                      onPressed: _submitForm,
+                    ScopedModelDescendant<MainModel>(
+                      builder: (BuildContext context, Widget child,
+                          MainModel model) {
+                        return RaisedButton(
+                          textColor: Colors.white,
+                          child: Text('LOGIN'),
+                          onPressed: () => _submitForm(model.login),
+                        );
+                      },
                     )
                   ],
                 ),
