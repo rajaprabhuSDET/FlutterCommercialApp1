@@ -4,7 +4,24 @@ import 'package:scoped_model/scoped_model.dart';
 import '../widgets/products/products.dart';
 import '../scopedmodel/mainmodel.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  final MainModel model;
+
+  HomePage(this.model);
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _HomePageState();
+  }
+}
+
+class _HomePageState extends State<HomePage> {
+@override
+initState(){
+widget.model.fetchProducts();
+  super.initState();
+}
   Widget _buildSideDrawerr(BuildContext context) {
     return Drawer(
       child: Column(
@@ -17,6 +34,12 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildProductList() {
+    return ScopedModelDescendant<MainModel>(builder: (BuildContext context, Widget child, MainModel model){
+      return Products();
+    },);
   }
 
   @override

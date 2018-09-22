@@ -46,11 +46,11 @@ class ProductList extends StatelessWidget {
                   ListTile(
                       leading: CircleAvatar(
                         backgroundImage:
-                            AssetImage(model.allproducts[index].image),
+                            NetworkImage(model.allproducts[index].image),
                       ),
                       title: Text(model.allproducts[index].title),
-                      subtitle:
-                          Text('\$${model.allproducts[index].price.toString()}'),
+                      subtitle: Text(
+                          '\$${model.allproducts[index].price.toString()}'),
                       trailing: _buildIconButton(context, index)),
                   Divider()
                 ],

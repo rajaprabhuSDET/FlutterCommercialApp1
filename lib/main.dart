@@ -20,8 +20,9 @@ class MyApp extends StatefulWidget {
 
 class MyAppStateless extends State<MyApp> {
   Widget build(BuildContext context) {
+    MainModel model = MainModel();
     return ScopedModel<MainModel>(
-      model: MainModel(),
+      model: model,
       child: MaterialApp(
         theme: ThemeData(
             brightness: Brightness.light,
@@ -31,7 +32,7 @@ class MyAppStateless extends State<MyApp> {
         //home: Auth(),
         routes: {
           '/': (BuildContext context) => Auth(),
-          '/home': (BuildContext context) => HomePage(),
+          '/home': (BuildContext context) => HomePage(model),
           '/admin': (BuildContext context) => ProductsAdmin(),
         },
         onGenerateRoute: (RouteSettings settings) {
@@ -50,7 +51,7 @@ class MyAppStateless extends State<MyApp> {
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => HomePage());
+              builder: (BuildContext context) => HomePage(model));
         },
       ),
     );
