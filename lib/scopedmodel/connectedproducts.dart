@@ -1,4 +1,5 @@
 import 'package:scoped_model/scoped_model.dart';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../model/productinfo.dart';
@@ -10,8 +11,10 @@ class ConnectedProductsModel extends Model {
   UserInfo _authUser;
   bool _isLoading = false;
 
-  void addGlass(String title, String description, String image, double price) {
-    _isLoading=true;
+  Future<Null> addGlass(
+      String title, String description, String image, double price) {
+    _isLoading = true;
+    notifyListeners();
     Map<String, dynamic> newproductt = {
       'title': title,
       'description': description,
@@ -22,7 +25,7 @@ class ConnectedProductsModel extends Model {
       'userID': _authUser.userid
     };
 
-    http
+    return http
         .post('https://fluttertrial.firebaseio.com/product.json',
             body: json.encode(newproductt))
         .then((http.Response response) {
@@ -36,7 +39,7 @@ class ConnectedProductsModel extends Model {
           email: _authUser.email,
           userID: _authUser.userid);
       _products.add(newproductinfo);
-      _isLoading=false;
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -71,22 +74,50 @@ class ProductModel extends ConnectedProductsModel {
     return _showFavourites;
   }
 
-  void updateGlass(
+  Future<Null> updateGlass(
       String title, String description, String image, double price) {
-    final updatedproductinfo = ProductInfo(
-        title: title,
-        description: description,
-        image: image,
-        price: price,
-        email: selectedProduct.email,
-        userID: selectedProduct.userID);
-    _products[selectedProductIndex] = updatedproductinfo;
+    _isLoading = true;
     notifyListeners();
+    final Map<String, dynamic> updatedProduct = {
+      'title': title,
+      'description': description,
+      'image': image,
+      'price': price,
+      'email': selectedProduct.email,
+      'userID': selectedProduct.userID
+    };
+    return http
+        .put(
+            'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}.json',
+            body: json.encode(updatedProduct))
+        .then((http.Response response) {
+      final updatedproductinfo = ProductInfo(
+          id: selectedProduct.id,
+          title: title,
+          description: description,
+          image: image,
+          price: price,
+          email: selectedProduct.email,
+          userID: selectedProduct.userID);
+      _products[selectedProductIndex] = updatedproductinfo;
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   void deleteGlass() {
+    _isLoading=true;
+    final deleteProductID = selectedProduct.id;
     _products.removeAt(selectedProductIndex);
+    _selProductIndex=null;
     notifyListeners();
+    http
+        .delete(
+            'https://fluttertrial.firebaseio.com/product/${deleteProductID}.json')
+        .then((http.Response response) {
+          _isLoading=false;
+      notifyListeners();
+    });
   }
 
   void selectProduct(int index) {
@@ -95,12 +126,18 @@ class ProductModel extends ConnectedProductsModel {
   }
 
   void fetchProducts() {
-    _isLoading=true;
+    _isLoading = true;
+    notifyListeners();
     http
         .get('https://fluttertrial.firebaseio.com/product.json')
         .then((http.Response response) {
       final Map<String, dynamic> fetchedProducts = json.decode(response.body);
       final List<ProductInfo> fetchedProductList = [];
+      if (fetchedProducts == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
       fetchedProducts.forEach((String key, dynamic value) {
         final ProductInfo productinfos = ProductInfo(
             title: value['title'],
@@ -113,7 +150,7 @@ class ProductModel extends ConnectedProductsModel {
         fetchedProductList.add(productinfos);
       });
       _products = fetchedProductList;
-      _isLoading=false;
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -123,6 +160,7 @@ class ProductModel extends ConnectedProductsModel {
     final updatedFavouriteStatus = !currentFavouriteStatus;
 
     final ProductInfo updatedproduct = ProductInfo(
+        id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
         image: selectedProduct.image,
@@ -143,5 +181,11 @@ class ProductModel extends ConnectedProductsModel {
 class UserModel extends ConnectedProductsModel {
   void login(String email, String password) {
     _authUser = UserInfo(email: email, password: password, userid: 'TestUser');
+  }
+}
+
+class UtilityModel extends ConnectedProductsModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }

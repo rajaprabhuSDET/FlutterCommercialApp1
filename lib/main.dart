@@ -33,7 +33,7 @@ class MyAppStateless extends State<MyApp> {
         routes: {
           '/': (BuildContext context) => Auth(),
           '/home': (BuildContext context) => HomePage(model),
-          '/admin': (BuildContext context) => ProductsAdmin(),
+          '/admin': (BuildContext context) => ProductsAdmin(model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElement = settings.name.split('/');

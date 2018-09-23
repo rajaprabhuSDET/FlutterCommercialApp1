@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import './product_create.dart';
 import './product_list.dart';
+import '../scopedmodel/mainmodel.dart';
 
 class ProductsAdmin extends StatelessWidget {
+
+  final MainModel model;
+
+  ProductsAdmin(this.model);
+
   Widget _buildSideDrawer(BuildContext context) {
     return Drawer(
       child: Column(
@@ -41,7 +47,7 @@ class ProductsAdmin extends StatelessWidget {
         body: TabBarView(
           children: <Widget>[
             CreateProduct(),
-            ProductList()
+            ProductList(model)
           ],
         ),
       ),

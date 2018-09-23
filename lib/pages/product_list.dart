@@ -3,7 +3,22 @@ import 'package:scoped_model/scoped_model.dart';
 import '../scopedmodel/mainmodel.dart';
 import './product_create.dart';
 
-class ProductList extends StatelessWidget {
+class ProductList extends StatefulWidget {
+final MainModel model;
+  ProductList(this.model);
+  @override
+    State<StatefulWidget> createState() {
+      // TODO: implement createState
+      return _ProductListBuild();
+    }
+}
+class _ProductListBuild extends State<ProductList>{
+@override
+initState(){
+  widget.model.fetchProducts();
+  super.initState();
+}
+
   Widget _buildIconButton(BuildContext context, int index) {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {

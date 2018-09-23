@@ -16,7 +16,7 @@ class CreateProductState extends State<CreateProduct> {
     'title': null,
     'description': null,
     'price': null,
-    'imageURL': 'assets/glass.jpg'
+    'imageURL': 'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg'
   };
   final GlobalKey<FormState> _fieldState = GlobalKey<FormState>();
   final _titleFocusNode = FocusNode();
@@ -86,13 +86,15 @@ class CreateProductState extends State<CreateProduct> {
   Widget _buildButton() {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return RaisedButton(
-          textColor: Colors.white,
-          child: Text('Save'),
-          onPressed: () => _actionOnPressed(
-              model.addGlass, model.updateGlass, model.selectProduct,
-              selectedProductIndex: model.selectedProductIndex),
-        );
+        return model.isLoading
+            ? Center(child: CircularProgressIndicator())
+            : RaisedButton(
+                textColor: Colors.white,
+                child: Text('Save'),
+                onPressed: () => _actionOnPressed(
+                    model.addGlass, model.updateGlass, model.selectProduct,
+                    selectedProductIndex: model.selectedProductIndex),
+              );
       },
     );
   }
@@ -105,15 +107,24 @@ class CreateProductState extends State<CreateProduct> {
     }
     _fieldState.currentState.save();
     if (selectedProductIndex == null) {
-      addProduct(_formData['title'], _formData['description'],
-          _formData['imageURL'], _formData['price']);
+      addProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['imageURL'],
+        _formData['price'],
+      ).then((_)=>Navigator.pushReplacementNamed(context, '/home')
+        .then((_) => selectProduct(null)));
     } else {
-      updateProduct(_formData['title'], _formData['description'],
-          _formData['imageURL'], _formData['price']);
+      updateProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['imageURL'],
+        _formData['price'],
+      ).then((_)=>Navigator.pushReplacementNamed(context, '/home')
+        .then((_) => selectProduct(null)));
     }
 
-    Navigator.pushReplacementNamed(context, '/home')
-        .then((_) => selectProduct(null));
+    
   }
 
   Widget _buildPageContent(BuildContext context, ProductInfo product) {
