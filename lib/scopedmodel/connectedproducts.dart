@@ -125,10 +125,10 @@ class ProductModel extends ConnectedProductsModel {
     notifyListeners();
   }
 
-  void fetchProducts() {
+  Future<Null> fetchProducts() {
     _isLoading = true;
     notifyListeners();
-    http
+    return http
         .get('https://fluttertrial.firebaseio.com/product.json')
         .then((http.Response response) {
       final Map<String, dynamic> fetchedProducts = json.decode(response.body);
