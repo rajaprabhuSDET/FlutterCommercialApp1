@@ -3,6 +3,8 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../scopedmodel/mainmodel.dart';
 
+enum AuthMode { Login, SignUp }
+
 class Auth extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -17,7 +19,8 @@ class AuthState extends State<Auth> {
     'acceptSwitch': false
   };
   final GlobalKey<FormState> _authState = GlobalKey<FormState>();
-
+  final TextEditingController _passwordController = TextEditingController();
+  AuthMode _authMode = AuthMode.Login;
   BoxDecoration _backgroundImage() {
     return BoxDecoration(
       image: DecorationImage(
@@ -66,6 +69,7 @@ class AuthState extends State<Auth> {
     return TextFormField(
       keyboardType: TextInputType.text,
       obscureText: true,
+      controller: _passwordController,
       decoration: InputDecoration(
         labelText: 'Password',
         fillColor: Colors.white,
@@ -74,6 +78,27 @@ class AuthState extends State<Auth> {
       validator: (String value) {
         if (value.isEmpty || value.length < 6) {
           return 'Field is required';
+        }
+      },
+      onSaved: (String value) {
+        _authCredentials['password'] = value;
+      },
+    );
+  }
+
+  Widget _confirmPasswordTextfield() {
+    return TextFormField(
+      keyboardType: TextInputType.text,
+      obscureText: true,
+      //controller: _passwordController,
+      decoration: InputDecoration(
+        labelText: 'Confirm Password',
+        fillColor: Colors.white,
+        filled: true,
+      ),
+      validator: (String value) {
+        if (_passwordController.text != value) {
+          return 'Passwords do not match';
         }
       },
       onSaved: (String value) {
@@ -115,7 +140,27 @@ class AuthState extends State<Auth> {
                       height: 10.0,
                     ),
                     _passwordTextfield(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    _authMode == AuthMode.SignUp
+                        ? _confirmPasswordTextfield()
+                        : Container(),
                     _acceptSwitch(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        setState(() {
+                          _authMode = _authMode == AuthMode.Login
+                              ? AuthMode.SignUp
+                              : AuthMode.Login;
+                        });
+                      },
+                      child: Text(
+                          'Switch to ${_authMode == AuthMode.Login ? 'SignUp' : 'Login'}'),
+                    ),
                     SizedBox(
                       height: 10.0,
                     ),
