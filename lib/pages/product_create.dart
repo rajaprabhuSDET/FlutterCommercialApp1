@@ -16,7 +16,8 @@ class CreateProductState extends State<CreateProduct> {
     'title': null,
     'description': null,
     'price': null,
-    'imageURL': 'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg'
+    'imageURL':
+        'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg'
   };
   final GlobalKey<FormState> _fieldState = GlobalKey<FormState>();
   final _titleFocusNode = FocusNode();
@@ -106,25 +107,44 @@ class CreateProductState extends State<CreateProduct> {
       return;
     }
     _fieldState.currentState.save();
-    if (selectedProductIndex == null) {
+    if (selectedProductIndex == -1) {
       addProduct(
         _formData['title'],
         _formData['description'],
         _formData['imageURL'],
         _formData['price'],
-      ).then((_)=>Navigator.pushReplacementNamed(context, '/home')
-        .then((_) => selectProduct(null)));
+      ).then(
+        (bool status) {
+          if (status) {
+            Navigator.pushReplacementNamed(context, '/home')
+                .then((_) => selectProduct(null));
+          } else {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Something went Wrong!'),
+                    content: Text('Please try again'),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text('Ok'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      )
+                    ],
+                  );
+                });
+          }
+        },
+      );
     } else {
       updateProduct(
         _formData['title'],
         _formData['description'],
         _formData['imageURL'],
         _formData['price'],
-      ).then((_)=>Navigator.pushReplacementNamed(context, '/home')
-        .then((_) => selectProduct(null)));
+      ).then((_) => Navigator.pushReplacementNamed(context, '/home')
+          .then((_) => selectProduct(null)));
     }
-
-    
   }
 
   Widget _buildPageContent(BuildContext context, ProductInfo product) {
@@ -161,7 +181,7 @@ class CreateProductState extends State<CreateProduct> {
       builder: (BuildContext context, Widget child, MainModel model) {
         final Widget pageContent =
             _buildPageContent(context, model.selectedProduct);
-        return model.selectedProductIndex == null
+        return model.selectedProductIndex == -1
             ? pageContent
             : Scaffold(
                 appBar: AppBar(

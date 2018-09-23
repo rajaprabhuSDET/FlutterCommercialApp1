@@ -5,6 +5,7 @@ import './pages/productdetails.dart';
 import './pages/products_admin.dart';
 import './pages/auth.dart';
 import './scopedmodel/mainmodel.dart';
+import './model/productinfo.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
@@ -41,10 +42,13 @@ class MyAppStateless extends State<MyApp> {
             return null;
           }
           if (pathElement[1] == 'product') {
-            final int index = int.parse(pathElement[2]);
+            final String productId = pathElement[2];
+            final ProductInfo productinfos =model.allproducts.firstWhere((ProductInfo productss){
+              return productss.id == productId;
+            });
             return MaterialPageRoute<bool>(
               builder: (BuildContext context) =>
-                  ProductDetails(index),
+                  ProductDetails(productinfos),
             );
           }
           return null;

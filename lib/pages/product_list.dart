@@ -4,20 +4,21 @@ import '../scopedmodel/mainmodel.dart';
 import './product_create.dart';
 
 class ProductList extends StatefulWidget {
-final MainModel model;
+  final MainModel model;
   ProductList(this.model);
   @override
-    State<StatefulWidget> createState() {
-      // TODO: implement createState
-      return _ProductListBuild();
-    }
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _ProductListBuild();
+  }
 }
-class _ProductListBuild extends State<ProductList>{
-@override
-initState(){
-  widget.model.fetchProducts();
-  super.initState();
-}
+
+class _ProductListBuild extends State<ProductList> {
+  @override
+  initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
 
   Widget _buildIconButton(BuildContext context, int index) {
     return ScopedModelDescendant<MainModel>(
@@ -25,7 +26,7 @@ initState(){
         return IconButton(
           icon: Icon(Icons.edit),
           onPressed: () {
-            model.selectProduct(index);
+            model.selectProduct(model.allproducts[index].id);
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
@@ -49,7 +50,7 @@ initState(){
               key: Key(model.allproducts[index].title),
               onDismissed: (DismissDirection direction) {
                 if (direction == DismissDirection.endToStart) {
-                  model.selectProduct(index);
+                  model.selectProduct(model.allproducts[index].id);
                   model.deleteGlass();
                 } else if (direction == DismissDirection.startToEnd) {
                   model.deleteGlass();

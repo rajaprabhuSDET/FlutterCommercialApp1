@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'dart:async';
 import '../widgets/products/title_default.dart';
-import '../scopedmodel/mainmodel.dart';
 import '../model/productinfo.dart';
 
 class ProductDetails extends StatelessWidget {
-  final productIndex;
-  ProductDetails(this.productIndex) {
-    print('inside constructor');
-  }
+  final ProductInfo productinfos;
 
+  ProductDetails(this.productinfos);
   _alertDialoug(BuildContext context) {
     showDialog(
       context: context,
@@ -64,23 +60,26 @@ class ProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(onWillPop: () {
-      Navigator.pop(context, false);
-      return Future.value(false);
-    }, child: ScopedModelDescendant<MainModel>(
-        builder: (BuildContext context, Widget child, MainModel model) {
-          final ProductInfo info= model.allproducts[productIndex];
-      return Scaffold(
+    return WillPopScope(
+      onWillPop: () {
+        Navigator.pop(context, false);
+        return Future.value(false);
+      },
+      child: Scaffold(
         appBar: AppBar(
-          title: Text(info.title),
+          title: Text(productinfos.title),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Image.network(info.image),
+            FadeInImage(
+                height: 300.0,
+                fit: BoxFit.cover,
+                placeholder: AssetImage('assets/glass.jpg'),
+                image: NetworkImage(productinfos.image)),
             Container(
               padding: EdgeInsets.all(10.0),
-              child: TitleDefault(info.title),
+              child: TitleDefault(productinfos.title),
             ),
             /* Container(
               padding: EdgeInsets.all(10.0),
@@ -90,17 +89,17 @@ class ProductDetails extends StatelessWidget {
                 onPressed: () => _alertDialoug(context),
               ),
             ),*/
-            _buildAddressPrice(info.price),
+            _buildAddressPrice(productinfos.price),
             Container(
               padding: EdgeInsets.all(10.0),
               child: Text(
-                info.description,
+                productinfos.description,
                 textAlign: TextAlign.center,
               ),
             ),
           ],
         ),
-      );
-    }));
+      ),
+    );
   }
 }
