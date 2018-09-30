@@ -135,7 +135,7 @@ class ProductModel extends ConnectedProductsModel {
     notifyListeners();
     return http
         .delete(
-            'https://fluttertrial.firebaseio.com/product/${deleteProductID}.json')
+            'https://fluttertrial.firebaseio.com/product/$deleteProductID.json')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
