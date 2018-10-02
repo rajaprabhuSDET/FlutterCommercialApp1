@@ -101,19 +101,23 @@ class AuthState extends State<Auth> {
           return 'Passwords do not match';
         }
       },
-      onSaved: (String value) {
-        _authCredentials['password'] = value;
-      },
     );
   }
 
-  void _submitForm(Function login) {
+  void _submitForm(Function login, Function signup) async {
     if (!_authState.currentState.validate()) {
       return;
     }
     _authState.currentState.save();
-    login(_authCredentials['email'], _authCredentials['password']);
-    Navigator.pushReplacementNamed(context, '/home');
+    if (_authMode == AuthMode.Login) {
+      login(_authCredentials['email'], _authCredentials['password']);
+    } else {
+      final Map<String, dynamic> successInformation =
+          await signup(_authCredentials['email'], _authCredentials['password']);
+      if (successInformation['success']) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    }
   }
 
   @override
@@ -170,7 +174,7 @@ class AuthState extends State<Auth> {
                         return RaisedButton(
                           textColor: Colors.white,
                           child: Text('LOGIN'),
-                          onPressed: () => _submitForm(model.login),
+                          onPressed: () => _submitForm(model.login, model.signup),
                         );
                       },
                     )
