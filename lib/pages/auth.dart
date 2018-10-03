@@ -105,18 +105,37 @@ class AuthState extends State<Auth> {
   }
 
   void _submitForm(Function login, Function signup) async {
+    Map<String, dynamic> successInformation;
     if (!_authState.currentState.validate()) {
       return;
     }
     _authState.currentState.save();
     if (_authMode == AuthMode.Login) {
-      login(_authCredentials['email'], _authCredentials['password']);
+      successInformation =
+          await login(_authCredentials['email'], _authCredentials['password']);
     } else {
-      final Map<String, dynamic> successInformation =
+      successInformation =
           await signup(_authCredentials['email'], _authCredentials['password']);
-      if (successInformation['success']) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
+    }
+    if (successInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('An Error Occured !'),
+              content: Text(successInformation['message']),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });
     }
   }
 
@@ -171,11 +190,16 @@ class AuthState extends State<Auth> {
                     ScopedModelDescendant<MainModel>(
                       builder: (BuildContext context, Widget child,
                           MainModel model) {
-                        return RaisedButton(
-                          textColor: Colors.white,
-                          child: Text('LOGIN'),
-                          onPressed: () => _submitForm(model.login, model.signup),
-                        );
+                        return model.isLoading
+                            ? CircularProgressIndicator()
+                            : RaisedButton(
+                                textColor: Colors.white,
+                                child: Text(_authMode == AuthMode.Login
+                                    ? 'LOGIN'
+                                    : 'SIGNUP'),
+                                onPressed: () =>
+                                    _submitForm(model.login, model.signup),
+                              );
                       },
                     )
                   ],
