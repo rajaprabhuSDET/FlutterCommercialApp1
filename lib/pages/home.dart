@@ -3,6 +3,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/products/products.dart';
 import '../scopedmodel/mainmodel.dart';
+import '../ui_element/logout_list_tile.dart';
 
 class HomePage extends StatefulWidget {
   final MainModel model;
@@ -29,9 +30,12 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           AppBar(automaticallyImplyLeading: false, title: Text('Chose')),
           ListTile(
-              leading: Icon(Icons.edit),
-              title: Text('ManageProducts'),
-              onTap: () => Navigator.pushReplacementNamed(context, '/admin'))
+            leading: Icon(Icons.edit),
+            title: Text('ManageProducts'),
+            onTap: () => Navigator.pushReplacementNamed(context, '/admin'),
+          ),
+          Divider(),
+          LogoutListTile()
         ],
       ),
     );

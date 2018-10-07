@@ -113,7 +113,7 @@ class AuthState extends State<Auth> {
     successInformation = await authenticate(
         _authCredentials['email'], _authCredentials['password'], _authMode);
     if (successInformation['success']) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/');
     } else {
       showDialog(
           context: context,
