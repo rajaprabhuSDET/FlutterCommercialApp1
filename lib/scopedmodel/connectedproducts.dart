@@ -308,6 +308,7 @@ class UserModel extends ConnectedProductsModel {
   void logout() async {
     _authUser = null;
     _authTimer.cancel();
+    _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('email');
@@ -315,10 +316,7 @@ class UserModel extends ConnectedProductsModel {
   }
 
   void setAuthTimeOut(int time) {
-    _authTimer = Timer(Duration(seconds: time), () {
-      logout();
-       _userSubject.add(false);
-    });
+    _authTimer = Timer(Duration(seconds: time), logout);
   }
 }
 
