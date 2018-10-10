@@ -155,7 +155,7 @@ class ProductModel extends ConnectedProductsModel {
     notifyListeners();
   }
 
-  Future<Null> fetchProducts() {
+  Future<Null> fetchProducts({onlyForUser = false}) {
     _isLoading = true;
     notifyListeners();
     return http
@@ -177,10 +177,18 @@ class ProductModel extends ConnectedProductsModel {
             price: value['price'],
             id: key,
             email: value['email'],
-            userID: value['userID']);
+            userID: value['userID'],
+            isFavourite: value['wishlistusers'] == null
+                ? false
+                : (value['wishlistusers'] as Map<String, dynamic>)
+                    .containsKey(_authUser.userid));
         fetchedProductList.add(productinfos);
       });
-      _products = fetchedProductList;
+      _products = onlyForUser
+          ? fetchedProductList.where((ProductInfo productinfo) {
+              return productinfo.id == _authUser.userid;
+            })
+          : fetchedProductList;
       _isLoading = false;
       notifyListeners();
       _selproductId = null;
@@ -191,7 +199,7 @@ class ProductModel extends ConnectedProductsModel {
     });
   }
 
-  void toggleFavouriteStatus() {
+  void toggleFavouriteStatus() async {
     final currentFavouriteStatus = selectedProduct.isFavourite;
     final updatedFavouriteStatus = !currentFavouriteStatus;
 
@@ -206,6 +214,31 @@ class ProductModel extends ConnectedProductsModel {
         isFavourite: updatedFavouriteStatus);
     _products[selectedProductIndex] = updatedproduct;
     notifyListeners();
+
+    http.Response response;
+    if (updatedFavouriteStatus) {
+      response = await http.put(
+          'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
+          body: json.encode(true),
+          headers: {'Content-Type': 'application/json'});
+    } else {
+      response = await http.delete(
+          'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
+          headers: {'Content-Type': 'application/json'});
+    }
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final ProductInfo updatedproduct = ProductInfo(
+          id: selectedProduct.id,
+          title: selectedProduct.title,
+          description: selectedProduct.description,
+          image: selectedProduct.image,
+          price: selectedProduct.price,
+          email: selectedProduct.email,
+          userID: selectedProduct.userID,
+          isFavourite: !updatedFavouriteStatus);
+      _products[selectedProductIndex] = updatedproduct;
+      notifyListeners();
+    }
   }
 
   void toggleDisplayMode() {
