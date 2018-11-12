@@ -7,15 +7,16 @@ import 'dart:convert';
 import '../model/productinfo.dart';
 import '../model/userinfo.dart';
 import '../model/authmodel.dart';
+import '../model/location_data.dart';
 
-class ConnectedProductsModel extends Model {
+mixin ConnectedProductsModel on Model {
   List<ProductInfo> _products = [];
   String _selproductId;
   UserInfo _authUser;
   bool _isLoading = false;
 }
 
-class ProductModel extends ConnectedProductsModel {
+mixin ProductModel on ConnectedProductsModel {
   bool _showFavourites = false;
 
   List<ProductInfo> get allproducts {
@@ -52,9 +53,11 @@ class ProductModel extends ConnectedProductsModel {
     });
   }
 
-  Future<bool> addGlass(
-      String title, String description, String image, double price) async {
+  Future<bool> addGlass(String title, String description, String image,
+      double price, LocationData locData) async {
     _isLoading = true;
+    print(locData.latitude);
+    print(locData.longitude);
     notifyListeners();
     Map<String, dynamic> newproductt = {
       'title': title,
@@ -63,7 +66,10 @@ class ProductModel extends ConnectedProductsModel {
           'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg',
       'price': price,
       'email': _authUser.email,
-      'userID': _authUser.userid
+      'userID': _authUser.userid,
+      'loc_lat': locData.latitude,
+      'loc_lng': locData.longitude,
+      'loc_address': locData.address
     };
     try {
       final http.Response response = await http.post(
@@ -81,6 +87,7 @@ class ProductModel extends ConnectedProductsModel {
           description: description,
           image: image,
           price: price,
+          location: locData,
           email: _authUser.email,
           userID: _authUser.userid);
       _products.add(newproductinfo);
@@ -94,8 +101,8 @@ class ProductModel extends ConnectedProductsModel {
     }
   }
 
-  Future<bool> updateGlass(
-      String title, String description, String image, double price) {
+  Future<bool> updateGlass(String title, String description, String image,
+      double price, LocationData locData) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> updatedProduct = {
@@ -104,7 +111,10 @@ class ProductModel extends ConnectedProductsModel {
       'image': image,
       'price': price,
       'email': selectedProduct.email,
-      'userID': selectedProduct.userID
+      'userID': selectedProduct.userID,
+      'loc_lat': locData.latitude,
+      'loc_lng': locData.longitude,
+      'loc_address': locData.address
     };
     return http
         .put(
@@ -117,6 +127,7 @@ class ProductModel extends ConnectedProductsModel {
           description: description,
           image: image,
           price: price,
+          location: locData,
           email: selectedProduct.email,
           userID: selectedProduct.userID);
       _products[selectedProductIndex] = updatedproductinfo;
@@ -152,7 +163,9 @@ class ProductModel extends ConnectedProductsModel {
 
   void selectProduct(String productId) {
     _selproductId = productId;
-    notifyListeners();
+    if (productId != null) {
+      notifyListeners();
+    }
   }
 
   Future<Null> fetchProducts({onlyForUser = false}) {
@@ -170,11 +183,16 @@ class ProductModel extends ConnectedProductsModel {
         return;
       }
       fetchedProducts.forEach((String key, dynamic value) {
+        print(value);
         final ProductInfo productinfos = ProductInfo(
             title: value['title'],
             description: value['description'],
             image: value['image'],
             price: value['price'],
+            location: LocationData(
+                address: value['loc_address'],
+                latitude: value['loc_lat'],
+                longitude: value['loc_lng']),
             id: key,
             email: value['email'],
             userID: value['userID'],
@@ -209,6 +227,7 @@ class ProductModel extends ConnectedProductsModel {
         description: selectedProduct.description,
         image: selectedProduct.image,
         price: selectedProduct.price,
+        location: selectedProduct.location,
         email: selectedProduct.email,
         userID: selectedProduct.userID,
         isFavourite: updatedFavouriteStatus);
@@ -234,6 +253,7 @@ class ProductModel extends ConnectedProductsModel {
           image: selectedProduct.image,
           price: selectedProduct.price,
           email: selectedProduct.email,
+          location: selectedProduct.location,
           userID: selectedProduct.userID,
           isFavourite: !updatedFavouriteStatus);
       _products[selectedProductIndex] = updatedproduct;
@@ -247,7 +267,7 @@ class ProductModel extends ConnectedProductsModel {
   }
 }
 
-class UserModel extends ConnectedProductsModel {
+mixin UserModel on ConnectedProductsModel {
   Timer _authTimer;
   PublishSubject<bool> _userSubject = PublishSubject();
 
@@ -353,7 +373,7 @@ class UserModel extends ConnectedProductsModel {
   }
 }
 
-class UtilityModel extends ConnectedProductsModel {
+mixin UtilityModel on ConnectedProductsModel {
   bool get isLoading {
     return _isLoading;
   }

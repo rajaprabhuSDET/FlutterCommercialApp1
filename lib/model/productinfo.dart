@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'location_data.dart';
 
 class ProductInfo {
   final String id;
@@ -9,6 +10,7 @@ class ProductInfo {
   final bool isFavourite;
   final String email;
   final String userID;
+  final LocationData location;
 
   ProductInfo(
       {@required this.id,
@@ -18,5 +20,6 @@ class ProductInfo {
       @required this.email,
       @required this.userID,
       @required this.description,
+      @required this.location,
       this.isFavourite=false});
 }

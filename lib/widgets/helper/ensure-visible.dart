@@ -48,7 +48,7 @@ class EnsureVisibleWhenFocusedState extends State<EnsureVisibleWhenFocused> {
 
   Future<Null> _ensureVisible() async {
     // Wait for the keyboard to come into view
-    // TODO: position doesn't seem to notify listeners when metrics change,
+    // position doesn't seem to notify listeners when metrics change,
     // perhaps a NotificationListener around the scrollable could avoid
     // the need insert a delay here.
     await Future.delayed(const Duration(milliseconds: 300));

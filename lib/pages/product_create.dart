@@ -3,6 +3,8 @@ import 'package:scoped_model/scoped_model.dart';
 import '../widgets/helper/ensure-visible.dart';
 import '../model/productinfo.dart';
 import '../scopedmodel/mainmodel.dart';
+import '../widgets/form_inputs/location.dart';
+import '../model/location_data.dart';
 
 class CreateProduct extends StatefulWidget {
   @override
@@ -17,20 +19,34 @@ class CreateProductState extends State<CreateProduct> {
     'description': null,
     'price': null,
     'imageURL':
-        'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg'
+        'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg',
+    'location': null
   };
   final GlobalKey<FormState> _fieldState = GlobalKey<FormState>();
   final _titleFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
+  final _titleController = TextEditingController();
 
   Widget _buildProductTitleTextField(ProductInfo product) {
+    if (product == null && _titleController.text.trim().isEmpty) {
+      _titleController.text = '';
+    } else if (product != null && _titleController.text.trim().isEmpty) {
+      _titleController.text = product.title;
+    } else if (product != null && _titleController.text.trim().isNotEmpty) {
+      _titleController.text = _titleController.text;
+    } else if (product == null && _titleController.text.trim().isNotEmpty) {
+      _titleController.text = _titleController.text;
+    } else {
+      _titleController.text = '';
+    }
     return EnsureVisibleWhenFocused(
       focusNode: _titleFocusNode,
       child: TextFormField(
         focusNode: _titleFocusNode,
+        controller: _titleController,
         decoration: InputDecoration(labelText: 'Product Title'),
-        initialValue: product == null ? '' : product.title,
+        //initialValue: product == null ? '' : product.title,
         onSaved: (String value) {
           _formData['title'] = value;
         },
@@ -100,6 +116,10 @@ class CreateProductState extends State<CreateProduct> {
     );
   }
 
+  void _setLocation(LocationData locData) {
+    _formData['location'] = locData;
+  }
+
   void _actionOnPressed(
       Function addProduct, Function updateProduct, Function selectProduct,
       {int selectedProductIndex}) {
@@ -109,10 +129,11 @@ class CreateProductState extends State<CreateProduct> {
     _fieldState.currentState.save();
     if (selectedProductIndex == -1) {
       addProduct(
-        _formData['title'],
+        _titleController.text,
         _formData['description'],
         _formData['imageURL'],
         _formData['price'],
+        _formData['location'],
       ).then(
         (bool status) {
           if (status) {
@@ -138,10 +159,11 @@ class CreateProductState extends State<CreateProduct> {
       );
     } else {
       updateProduct(
-        _formData['title'],
+        _titleController.text,
         _formData['description'],
         _formData['imageURL'],
         _formData['price'],
+        _formData['location'],
       ).then((_) => Navigator.pushReplacementNamed(context, '/home')
           .then((_) => selectProduct(null)));
     }
@@ -165,6 +187,10 @@ class CreateProductState extends State<CreateProduct> {
               _buildProductTitleTextField(product),
               _buildProductDescriptionTextField(product),
               _buildProductPriceTextField(product),
+              SizedBox(
+                height: 10.0,
+              ),
+              LocationInput(_setLocation, product),
               SizedBox(
                 height: 10.0,
               ),

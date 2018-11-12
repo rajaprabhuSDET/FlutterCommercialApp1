@@ -8,7 +8,6 @@ class ProductList extends StatefulWidget {
   ProductList(this.model);
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return _ProductListBuild();
   }
 }
@@ -33,7 +32,9 @@ class _ProductListBuild extends State<ProductList> {
                   return CreateProduct();
                 },
               ),
-            );
+            ).then((_) {
+              model.selectProduct(null);
+            });
           },
         );
       },

@@ -7,7 +7,7 @@ packages:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.32.4"
+    version: "0.33.0"
   archive:
     dependency: transitive
     description:
@@ -70,7 +70,7 @@ packages:
       name: csslib
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.14.5"
+    version: "0.14.6"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -110,7 +110,7 @@ packages:
       name: front_end
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.4"
+    version: "0.1.6"
   glob:
     dependency: transitive
     description:
@@ -131,7 +131,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.3+17"
+    version: "0.12.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -180,7 +180,14 @@ packages:
       name: kernel
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.4"
+    version: "0.3.6"
+  location:
+    dependency: "direct main"
+    description:
+      name: location
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
   logging:
     dependency: transitive
     description:
@@ -191,9 +198,11 @@ packages:
   map_view:
     dependency: "direct main"
     description:
-      name: map_view
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "0188541381d12ef8fe21ef9c2604b756381438dc"
+      url: "git://github.com/Eimji/flutter_google_map_view.git"
+    source: git
     version: "0.0.14"
   matcher:
     dependency: transitive
@@ -243,7 +252,7 @@ packages:
       name: package_resolver
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.6"
   path:
     dependency: transitive
     description:
@@ -353,7 +362,7 @@ packages:
       name: source_maps
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.7"
+    version: "0.10.8"
   source_span:
     dependency: transitive
     description:
@@ -395,7 +404,7 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0"
+    version: "1.3.4"
   typed_data:
     dependency: transitive
     description:
@@ -406,10 +415,12 @@ packages:
   uri:
     dependency: transitive
     description:
-      name: uri
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.11.3+1"
+      path: "."
+      ref: HEAD
+      resolved-ref: "04417bbc6b365cfd69a0009dfa4b358432f6e8bd"
+      url: "git://github.com/Eimji/uri.dart"
+    source: git
+    version: "0.11.3"
   utf:
     dependency: transitive
     description:
@@ -460,5 +471,5 @@ packages:
     source: hosted
     version: "2.1.15"
 sdks:
-  dart: ">=2.0.0 <=2.1.0-dev.3.1.flutter-760a9690c2"
+  dart: ">=2.0.0 <=2.1.0-dev.8.0.flutter-bf26f760b1"
   flutter: ">=0.1.4 <2.0.0"
