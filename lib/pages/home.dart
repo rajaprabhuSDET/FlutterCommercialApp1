@@ -41,14 +41,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductList() {
-    return ScopedModelDescendant<MainModel>(
+    return ScopedModelDescendant(
       builder: (BuildContext context, Widget child, MainModel model) {
-        Widget content = Center(child: Text('No product Found'));
+        Widget content = Center(child: Text('No Products Found!'));
         if (model.displayedProducts.length > 0 && !model.isLoading) {
           content = Products();
         } else if (model.isLoading) {
           content = Center(child: CircularProgressIndicator());
-        }
+        } 
         return RefreshIndicator(onRefresh: model.fetchProducts, child: content);
       },
     );

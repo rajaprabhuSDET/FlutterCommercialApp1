@@ -14,19 +14,16 @@ class Products extends StatelessWidget {
   }
 
   Widget _buildProductList(List<ProductInfo> productslist) {
-    Widget productcard = Center(
-      child: Text('No Items. Please add some idems'),
-    );
-    Widget listview = ListView.builder(
+    Widget productcard ;
+    if (productslist.length > 0) {
+      productcard = ListView.builder(
       itemBuilder: (BuildContext context, index) =>
           ProductsCard(productslist[index], index),
       itemCount: productslist.length,
     );
-
-    if (productslist.length > 0) {
-      return listview;
     } else {
-      return productcard;
+      productcard = Container(child: Center(child: Text("No Items Found"),),);
     }
+    return productcard;
   }
 }
