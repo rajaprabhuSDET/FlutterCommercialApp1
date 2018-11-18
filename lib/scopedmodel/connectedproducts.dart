@@ -59,7 +59,7 @@ mixin ProductModel on ConnectedProductsModel {
     print(locData.latitude);
     print(locData.longitude);
     notifyListeners();
-    final Map<String, dynamic> newproductt = {
+    Map<String, dynamic> newproductt = {
       'title': title,
       'description': description,
       'image':
@@ -131,7 +131,7 @@ mixin ProductModel on ConnectedProductsModel {
           email: selectedProduct.email,
           userID: selectedProduct.userID);
       _products[selectedProductIndex] = updatedproductinfo;
-      //_isLoading = false;
+      _isLoading = false;
       notifyListeners();
       return true;
     }).catchError((error) {
@@ -168,10 +168,10 @@ mixin ProductModel on ConnectedProductsModel {
     }
   }
 
-  Future<Null> fetchProducts({onlyForUser = false}) async {
+  Future<Null> fetchProducts({onlyForUser = false}) {
     _isLoading = true;
     notifyListeners();
-    return await http
+    return http
         .get(
             'https://fluttertrial.firebaseio.com/product.json?auth=${_authUser.token}')
         .then<Null>((http.Response response) {
@@ -205,7 +205,7 @@ mixin ProductModel on ConnectedProductsModel {
       _products = onlyForUser
           ? fetchedProductList.where((ProductInfo productinfo) {
               return productinfo.id == _authUser.userid;
-            }).toList()
+            })
           : fetchedProductList;
       _isLoading = false;
       notifyListeners();
