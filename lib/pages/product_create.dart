@@ -5,6 +5,7 @@ import '../model/productinfo.dart';
 import '../scopedmodel/mainmodel.dart';
 import '../widgets/form_inputs/location.dart';
 import '../model/location_data.dart';
+import '../widgets/form_inputs/image.dart';
 
 class CreateProduct extends StatefulWidget {
   @override
@@ -187,13 +188,11 @@ class CreateProductState extends State<CreateProduct> {
               _buildProductTitleTextField(product),
               _buildProductDescriptionTextField(product),
               _buildProductPriceTextField(product),
-              SizedBox(
-                height: 10.0,
-              ),
+              SizedBox(height: 10.0),
               LocationInput(_setLocation, product),
-              SizedBox(
-                height: 10.0,
-              ),
+              SizedBox(height: 10.0),
+              ImageInput(),
+              SizedBox(height: 10.0),
               _buildButton()
             ],
           ),

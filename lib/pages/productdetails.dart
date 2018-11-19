@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../widgets/products/title_default.dart';
 import '../model/productinfo.dart';
+import 'package:map_view/map_view.dart';
 
 class ProductDetails extends StatelessWidget {
   final ProductInfo productinfos;
@@ -34,16 +35,44 @@ class ProductDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressPrice(double price) {
+  void _showMap() {
+    final List<Marker> marker = <Marker>[
+      Marker('position', 'position', productinfos.location.latitude,
+          productinfos.location.longitude)
+    ];
+    final camerapositon = CameraPosition(
+        Location(
+            productinfos.location.latitude, productinfos.location.longitude),
+        14.0);
+    final mapview = MapView();
+    mapview.show(
+        MapOptions(
+            initialCameraPosition: camerapositon,
+            mapViewType: MapViewType.normal,
+            title: 'Product Location'),
+        toolbarActions: [ToolbarAction('ToolBar', 1)]);
+        mapview.onToolbarAction.listen((int id) {
+          if (id == 1) {
+            mapview.dismiss();
+          }
+        });
+        mapview.onMapReady.listen((_) {
+          mapview.setMarkers(marker);
+        });
+  }
+
+  Widget _buildAddressPrice(String address, double price) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Address to display',
-          style: TextStyle(fontFamily: 'Symbol', color: Colors.grey),
+        GestureDetector(
+          onTap: _showMap,
+          child: Text(
+            address,
+            style: TextStyle(fontFamily: 'Symbol', color: Colors.grey),
+          ),
         ),
         Container(
-          padding: EdgeInsets.all(10.0),
           margin: EdgeInsets.symmetric(horizontal: 5.0),
           child: Text(
             '|',
@@ -89,7 +118,8 @@ class ProductDetails extends StatelessWidget {
                 onPressed: () => _alertDialoug(context),
               ),
             ),*/
-            _buildAddressPrice(productinfos.price),
+            _buildAddressPrice(
+                productinfos.location.address, productinfos.price),
             Container(
               padding: EdgeInsets.all(10.0),
               child: Text(
