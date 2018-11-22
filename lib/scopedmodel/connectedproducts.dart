@@ -1,7 +1,10 @@
 import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 import 'dart:async';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../model/productinfo.dart';
@@ -53,12 +56,55 @@ mixin ProductModel on ConnectedProductsModel {
     });
   }
 
-  Future<bool> addGlass(String title, String description, String image,
+  Future<Map<String, dynamic>> uploadImage(File image,
+      {String imagePath}) async {
+    final mimeTypeData = lookupMimeType(image.path).split('/');
+    final imageUploadRequest = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://us-central1-fluttertrial.cloudfunctions.net/storeImage'));
+    final file = await http.MultipartFile.fromPath(
+      'image',
+      image.path,
+      contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+    );
+    imageUploadRequest.files.add(file);
+    if (imagePath != null) {
+      imageUploadRequest.fields['imagePath'] = Uri.encodeComponent(imagePath);
+    }
+    imageUploadRequest.headers['Authorization'] = 'Bearer ${_authUser.token}';
+
+    try {
+      final streamedResponses = await imageUploadRequest.send();
+      final response = await http.Response.fromStream(streamedResponses);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        print('something went wrong');
+        print(json.decode(response.body));
+        return null;
+      }
+      final responseData = json.decode(response.body);
+      print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+      print(json.decode(response.body));
+      return responseData;
+    } catch (error) {
+      print(error);
+      return null;
+    }
+  }
+
+  Future<bool> addGlass(String title, String description, File image,
       double price, LocationData locData) async {
     _isLoading = true;
     print(locData.latitude);
     print(locData.longitude);
     notifyListeners();
+
+    final uploadData = await uploadImage(image);
+    if (uploadData == null) {
+      print('upload failed');
+      return false;
+    }
+
     Map<String, dynamic> newproductt = {
       'title': title,
       'description': description,
@@ -67,6 +113,8 @@ mixin ProductModel on ConnectedProductsModel {
       'price': price,
       'email': _authUser.email,
       'userID': _authUser.userid,
+      'imagePath' : uploadData['imagePath'],
+      'imageURL' : uploadData['imageUrl'],
       'loc_lat': locData.latitude,
       'loc_lng': locData.longitude,
       'loc_address': locData.address
@@ -85,7 +133,7 @@ mixin ProductModel on ConnectedProductsModel {
           id: responsedata['name'],
           title: title,
           description: description,
-          image: image,
+          image: uploadData['imageUrl'],
           price: price,
           location: locData,
           email: _authUser.email,

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../../model/productinfo.dart';
 
 class ImageInput extends StatefulWidget {
+  final Function setImage;
+  final ProductInfo product;
+
+  ImageInput(this.setImage, this.product);
+
   @override
   State<StatefulWidget> createState() {
     return ImageInputState();
@@ -10,9 +16,14 @@ class ImageInput extends StatefulWidget {
 }
 
 class ImageInputState extends State<ImageInput> {
+  File _imagefile;
 
   void _getImage(BuildContext context, ImageSource source) {
-    ImagePicker.pickImage(source: source, maxWidth:400.0,).then((File image) {
+    ImagePicker.pickImage(source: source, maxWidth: 400.0).then((File image) {
+      setState(() {
+        _imagefile = image;
+      });
+      widget.setImage(image);
       Navigator.pop(context);
     });
   }
@@ -74,6 +85,16 @@ class ImageInputState extends State<ImageInput> {
             ],
           ),
         ),
+        SizedBox(height: 10.0),
+        _imagefile == null
+            ? Text('Please Pick an Image')
+            : Image.file(
+                _imagefile,
+                fit: BoxFit.cover,
+                height: 300.0,
+                alignment: Alignment.topCenter,
+                width: MediaQuery.of(context).size.width,
+              ),
       ],
     );
   }
