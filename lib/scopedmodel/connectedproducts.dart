@@ -283,51 +283,54 @@ mixin ProductModel on ConnectedProductsModel {
     });
   }
 
-  void toggleFavouriteStatus() async {
-    final currentFavouriteStatus = selectedProduct.isFavourite;
-    final updatedFavouriteStatus = !currentFavouriteStatus;
-
+  void toggleFavouriteStatus(ProductInfo toggledProduct) async {
+    final bool currentFavouriteStatus = toggledProduct.isFavourite;
+    final bool updatedFavouriteStatus = !currentFavouriteStatus;
+    final int toggledProductIndex =
+        _products.indexWhere((ProductInfo productin) {
+      return productin.id == toggledProduct.id;
+    });
     final ProductInfo updatedproduct = ProductInfo(
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        description: selectedProduct.description,
-        imagePath: selectedProduct.imagePath,
-        image: selectedProduct.image,
-        price: selectedProduct.price,
-        location: selectedProduct.location,
-        email: selectedProduct.email,
-        userID: selectedProduct.userID,
+        id: toggledProduct.id,
+        title: toggledProduct.title,
+        description: toggledProduct.description,
+        imagePath: toggledProduct.imagePath,
+        image: toggledProduct.image,
+        price: toggledProduct.price,
+        location: toggledProduct.location,
+        email: toggledProduct.email,
+        userID: toggledProduct.userID,
         isFavourite: updatedFavouriteStatus);
-    _products[selectedProductIndex] = updatedproduct;
+    _products[toggledProductIndex] = updatedproduct;
     notifyListeners();
 
     http.Response response;
     if (updatedFavouriteStatus) {
       response = await http.put(
-          'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
+          'https://fluttertrial.firebaseio.com/product/${toggledProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
           body: json.encode(true),
           headers: {'Content-Type': 'application/json'});
     } else {
       response = await http.delete(
-          'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
+          'https://fluttertrial.firebaseio.com/product/${toggledProduct.id}/wishlistusers/${_authUser.userid}.json?auth=${_authUser.token}',
           headers: {'Content-Type': 'application/json'});
     }
     if (response.statusCode != 200 && response.statusCode != 201) {
       final ProductInfo updatedproduct = ProductInfo(
-          id: selectedProduct.id,
-          title: selectedProduct.title,
-          description: selectedProduct.description,
-          image: selectedProduct.image,
-          imagePath: selectedProduct.imagePath,
-          price: selectedProduct.price,
-          email: selectedProduct.email,
-          location: selectedProduct.location,
-          userID: selectedProduct.userID,
+          id: toggledProduct.id,
+          title: toggledProduct.title,
+          description: toggledProduct.description,
+          image: toggledProduct.image,
+          imagePath: toggledProduct.imagePath,
+          price: toggledProduct.price,
+          email: toggledProduct.email,
+          location: toggledProduct.location,
+          userID: toggledProduct.userID,
           isFavourite: !updatedFavouriteStatus);
-      _products[selectedProductIndex] = updatedproduct;
+      _products[toggledProductIndex] = updatedproduct;
       notifyListeners();
     }
-    _selproductId = null;
+    //_selproductId = null;
   }
 
   void toggleDisplayMode() {

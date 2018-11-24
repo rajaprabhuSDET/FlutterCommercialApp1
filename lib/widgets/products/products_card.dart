@@ -45,8 +45,8 @@ class ProductsCard extends StatelessWidget {
                   ? Icons.favorite
                   : Icons.favorite_border),
               onPressed: () {
-                model.selectProduct(productslist.id);
-                model.toggleFavouriteStatus();
+                //model.selectProduct(productslist.id);
+                model.toggleFavouriteStatus(productslist);
               },
             ),
           ],
