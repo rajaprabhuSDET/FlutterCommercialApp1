@@ -125,7 +125,7 @@ mixin ProductModel on ConnectedProductsModel {
         return false;
       }
       final Map<String, dynamic> responsedata = json.decode(response.body);
-      final newproductinfo = ProductInfo(
+      final ProductInfo newproductinfo = ProductInfo(
           id: responsedata['name'],
           title: title,
           description: description,
@@ -175,11 +175,11 @@ mixin ProductModel on ConnectedProductsModel {
       'loc_address': locData.address
     };
     try {
-      final http.Response response = await http.put(
+      await http.put(
           'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}.json?auth=${_authUser.token}',
           body: json.encode(updatedProduct));
       _isLoading = false;
-      final updatedproductinfo = ProductInfo(
+      final ProductInfo updatedproductinfo = ProductInfo(
           id: selectedProduct.id,
           title: title,
           description: description,
@@ -226,8 +226,11 @@ mixin ProductModel on ConnectedProductsModel {
     }
   }
 
-  Future<Null> fetchProducts({onlyForUser = false}) {
+  Future<Null> fetchProducts({onlyForUser = false, clearExisting = false}) {
     _isLoading = true;
+    if (clearExisting) {
+      _products = [];
+    }
     notifyListeners();
     return http
         .get(
@@ -240,27 +243,31 @@ mixin ProductModel on ConnectedProductsModel {
         notifyListeners();
         return;
       }
-      fetchedProducts.forEach((String key, dynamic value) {
-        print(value);
-        final ProductInfo productinfos = ProductInfo(
+      fetchedProducts.forEach(
+        (String key, dynamic value) {
+          print(value);
+          final ProductInfo productinfos = ProductInfo(
             title: value['title'],
             description: value['description'],
             imagePath: value['imagePath'],
             image: value['imageURL'],
             price: value['price'],
             location: LocationData(
-                address: value['loc_address'],
-                latitude: value['loc_lat'],
-                longitude: value['loc_lng']),
+              address: value['loc_address'],
+              latitude: value['loc_lat'],
+              longitude: value['loc_lng'],
+            ),
             id: key,
             email: value['email'],
             userID: value['userID'],
             isFavourite: value['wishlistusers'] == null
                 ? false
                 : (value['wishlistusers'] as Map<String, dynamic>)
-                    .containsKey(_authUser.userid));
-        fetchedProductList.add(productinfos);
-      });
+                    .containsKey(_authUser.userid),
+          );
+          fetchedProductList.add(productinfos);
+        },
+      );
       _products = onlyForUser
           ? fetchedProductList.where((ProductInfo productinfo) {
               return productinfo.userID == _authUser.userid;
@@ -320,6 +327,7 @@ mixin ProductModel on ConnectedProductsModel {
       _products[selectedProductIndex] = updatedproduct;
       notifyListeners();
     }
+    _selproductId = null;
   }
 
   void toggleDisplayMode() {
@@ -423,6 +431,7 @@ mixin UserModel on ConnectedProductsModel {
     _authUser = null;
     _authTimer.cancel();
     _userSubject.add(false);
+    _selproductId = null;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('email');

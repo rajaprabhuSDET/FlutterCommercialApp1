@@ -29,6 +29,7 @@ class CreateProductState extends State<CreateProduct> {
   final _priceFocusNode = FocusNode();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _priceController = TextEditingController();
 
   Widget _buildProductTitleTextField(ProductInfo product) {
     if (product == null && _titleController.text.trim().isEmpty) {
@@ -87,19 +88,22 @@ class CreateProductState extends State<CreateProduct> {
   }
 
   Widget _buildProductPriceTextField(ProductInfo product) {
+    if (product == null && _priceController.text.trim().isEmpty) {
+      _priceController.text = '';
+    } else if (product != null && _priceController.text.trim().isEmpty) {
+      _priceController.text = product.price.toString();
+    }
     return EnsureVisibleWhenFocused(
       focusNode: _priceFocusNode,
       child: TextFormField(
+        controller: _priceController,
         focusNode: _priceFocusNode,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(labelText: 'Product Price'),
-        initialValue: product == null ? '' : product.price.toString(),
-        onSaved: (String value) {
-          _formData['price'] = double.parse(value);
-        },
+        //initialValue: product == null ? '' : product.price.toString(),
         validator: (String value) {
           if (value.isEmpty ||
-              !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(value)) {
+              !RegExp(r'^(?:[1-9]\d*|0)?(?:[.,]\d+)?$').hasMatch(value)) {
             return 'Field is required';
           }
         },
@@ -144,7 +148,7 @@ class CreateProductState extends State<CreateProduct> {
         _titleController.text,
         _descriptionController.text,
         _formData['imageURL'],
-        _formData['price'],
+        double.parse(_priceController.text.replaceFirst(RegExp(r','), '.')),
         _formData['location'],
       ).then(
         (bool status) {
@@ -174,7 +178,7 @@ class CreateProductState extends State<CreateProduct> {
         _titleController.text,
         _descriptionController.text,
         _formData['imageURL'],
-        _formData['price'],
+        double.parse(_descriptionController.text.replaceFirst(RegExp(r','), '.')),
         _formData['location'],
       ).then((_) => Navigator.pushReplacementNamed(context, '/home')
           .then((_) => selectProduct(null)));

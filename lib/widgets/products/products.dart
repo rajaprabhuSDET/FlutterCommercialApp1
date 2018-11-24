@@ -19,7 +19,7 @@ class Products extends StatelessWidget {
     );
     Widget listview = ListView.builder(
       itemBuilder: (BuildContext context, index) =>
-          ProductsCard(productslist[index], index),
+          ProductsCard(productslist[index] ),
       itemCount: productslist.length,
     );
 

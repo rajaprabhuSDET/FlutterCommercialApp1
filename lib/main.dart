@@ -8,10 +8,11 @@ import './pages/auth.dart';
 import './scopedmodel/mainmodel.dart';
 import './model/productinfo.dart';
 import './widgets/helper/custom_route.dart';
+import './shared/global_config.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
-  MapView.setApiKey("AIzaSyAeHEf-EYT6L7vGrr13rHyYgYbloB3BTzk");
+  MapView.setApiKey(apiKey);
   runApp(new MyApp());
 }
 

@@ -8,9 +8,8 @@ import '../../scopedmodel/mainmodel.dart';
 
 class ProductsCard extends StatelessWidget {
   final ProductInfo productslist;
-  final int productIndex;
 
-  ProductsCard(this.productslist, this.productIndex);
+  ProductsCard(this.productslist);
 
   Widget _buildaddressPricetag() {
     return Container(
@@ -18,11 +17,9 @@ class ProductsCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          TitleDefault(productslist.title),
-          SizedBox(
-            width: 8.0,
-          ),
-          PriceTag(productslist.price.toString())
+          Flexible(child: TitleDefault(productslist.title)),
+          Flexible(child: SizedBox(width: 8.0)),
+          Flexible(child: PriceTag(productslist.price.toString()))
         ],
       ),
     );
@@ -37,18 +34,18 @@ class ProductsCard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.info),
               onPressed: () {
-                model.selectProduct(model.allproducts[productIndex].id);
-                Navigator.pushNamed<bool>(context,
-                        '/product/' + model.allproducts[productIndex].id)
+                model.selectProduct(productslist.id);
+                Navigator.pushNamed<bool>(
+                        context, '/product/' + productslist.id)
                     .then((_) => model.selectProduct(null));
               },
             ),
             IconButton(
-              icon: Icon(model.allproducts[productIndex].isFavourite
+              icon: Icon(productslist.isFavourite
                   ? Icons.favorite
                   : Icons.favorite_border),
               onPressed: () {
-                model.selectProduct(model.allproducts[productIndex].id);
+                model.selectProduct(productslist.id);
                 model.toggleFavouriteStatus();
               },
             ),
@@ -73,6 +70,7 @@ class ProductsCard extends StatelessWidget {
             ),
           ),
           _buildaddressPricetag(),
+          SizedBox(height: 10.0),
           AddressTag(productslist.location.address),
           _buildButtons(context),
         ],
