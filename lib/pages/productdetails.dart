@@ -96,22 +96,36 @@ class ProductDetails extends StatelessWidget {
         return Future.value(false);
       },
       child: Scaffold(
-        appBar: AppBar(
+        /* appBar: AppBar(
           title: Text(productinfos.title),
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            FadeInImage(
-                height: 300.0,
-                fit: BoxFit.cover,
-                placeholder: AssetImage('assets/glass.jpg'),
-                image: NetworkImage(productinfos.image)),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: TitleDefault(productinfos.title),
+        ), */
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              expandedHeight: 256.0,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(productinfos.title),
+                background: Hero(
+                  tag: productinfos.id,
+                  child: FadeInImage(
+                    height: 300.0,
+                    fit: BoxFit.cover,
+                    placeholder: AssetImage('assets/glass.jpg'),
+                    image: NetworkImage(productinfos.image),
+                  ),
+                ),
+              ),
             ),
-            /* Container(
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  Container(
+                    padding: EdgeInsets.all(10.0),
+                    alignment: Alignment.center,
+                    child: TitleDefault(productinfos.title),
+                  ),
+                  /* Container(
               padding: EdgeInsets.all(10.0),
               child: RaisedButton(
                 child: Text('Delete'),
@@ -119,15 +133,18 @@ class ProductDetails extends StatelessWidget {
                 onPressed: () => _alertDialoug(context),
               ),
             ),*/
-            _buildAddressPrice(
-                productinfos.location.address, productinfos.price),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                productinfos.description,
-                textAlign: TextAlign.center,
+                  _buildAddressPrice(
+                      productinfos.location.address, productinfos.price),
+                  Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(
+                      productinfos.description,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         ),
         floatingActionButton: ProductFab(productinfos),

@@ -7,6 +7,7 @@ import './pages/products_admin.dart';
 import './pages/auth.dart';
 import './scopedmodel/mainmodel.dart';
 import './model/productinfo.dart';
+import './widgets/helper/custom_route.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
@@ -67,7 +68,7 @@ class MyAppStateless extends State<MyApp> {
                 _model.allproducts.firstWhere((ProductInfo productss) {
               return productss.id == productId;
             });
-            return MaterialPageRoute<bool>(
+            return CustomRoute<bool>(
               builder: (BuildContext context) => ProductDetails(productinfos),
             );
           }

@@ -11,7 +11,7 @@ class Auth extends StatefulWidget {
   }
 }
 
-class AuthState extends State<Auth> {
+class AuthState extends State<Auth> with TickerProviderStateMixin {
   final Map<String, dynamic> _authCredentials = {
     'email': null,
     'password': null,
@@ -20,6 +20,18 @@ class AuthState extends State<Auth> {
   final GlobalKey<FormState> _authState = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   AuthMode _authMode = AuthMode.Login;
+  AnimationController _aniController;
+  Animation<Offset> _sildeAnimation;
+
+  void initState() {
+    _aniController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _sildeAnimation = Tween<Offset>(begin: Offset(0.0, -2.0), end: Offset.zero).animate(CurvedAnimation(parent: _aniController, curve: Curves.fastOutSlowIn));
+    super.initState();
+  }
+
   BoxDecoration _backgroundImage() {
     return BoxDecoration(
       image: DecorationImage(
@@ -86,20 +98,27 @@ class AuthState extends State<Auth> {
   }
 
   Widget _confirmPasswordTextfield() {
-    return TextFormField(
-      keyboardType: TextInputType.text,
-      obscureText: true,
-      //controller: _passwordController,
-      decoration: InputDecoration(
-        labelText: 'Confirm Password',
-        fillColor: Colors.white,
-        filled: true,
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: _aniController, curve: Curves.easeIn),
+      child: SlideTransition(
+        position: _sildeAnimation,
+        child: TextFormField(
+          keyboardType: TextInputType.text,
+          obscureText: true,
+          //controller: _passwordController,
+          decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            fillColor: Colors.white,
+            filled: true,
+          ),
+          validator: (String value) {
+            if (_passwordController.text != value &&
+                _authMode == AuthMode.SignUp) {
+              return 'Passwords do not match';
+            }
+          },
+        ),
       ),
-      validator: (String value) {
-        if (_passwordController.text != value) {
-          return 'Passwords do not match';
-        }
-      },
     );
   }
 
@@ -161,20 +180,24 @@ class AuthState extends State<Auth> {
                     SizedBox(
                       height: 10.0,
                     ),
-                    _authMode == AuthMode.SignUp
-                        ? _confirmPasswordTextfield()
-                        : Container(),
+                    _confirmPasswordTextfield(),
                     _acceptSwitch(),
                     SizedBox(
                       height: 10.0,
                     ),
                     FlatButton(
                       onPressed: () {
-                        setState(() {
-                          _authMode = _authMode == AuthMode.Login
-                              ? AuthMode.SignUp
-                              : AuthMode.Login;
-                        });
+                        if (_authMode == AuthMode.Login) {
+                          setState(() {
+                            _authMode = AuthMode.SignUp;
+                          });
+                          _aniController.forward();
+                        } else {
+                          setState(() {
+                            _authMode = AuthMode.Login;
+                          });
+                          _aniController.reverse();
+                        }
                       },
                       child: Text(
                           'Switch to ${_authMode == AuthMode.Login ? 'SignUp' : 'Login'}'),
