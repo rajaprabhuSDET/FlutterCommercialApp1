@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../model/productinfo.dart';
 
 class ProductFab extends StatefulWidget {
+
+  final ProductInfo productinfo ;
+  ProductFab(this.productinfo);
+
   @override
   State<StatefulWidget> createState() {
     return ProductFabState();

@@ -130,7 +130,7 @@ class ProductDetails extends StatelessWidget {
             ),
           ],
         ),
-        floatingActionButton: ProductFab(),
+        floatingActionButton: ProductFab(productinfos),
       ),
     );
   }
