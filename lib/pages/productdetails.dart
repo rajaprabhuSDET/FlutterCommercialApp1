@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../widgets/products/title_default.dart';
 import '../model/productinfo.dart';
+import '../widgets/products/product_fab.dart';
 import 'package:map_view/map_view.dart';
 
 class ProductDetails extends StatelessWidget {
@@ -51,14 +52,14 @@ class ProductDetails extends StatelessWidget {
             mapViewType: MapViewType.normal,
             title: 'Product Location'),
         toolbarActions: [ToolbarAction('ToolBar', 1)]);
-        mapview.onToolbarAction.listen((int id) {
-          if (id == 1) {
-            mapview.dismiss();
-          }
-        });
-        mapview.onMapReady.listen((_) {
-          mapview.setMarkers(marker);
-        });
+    mapview.onToolbarAction.listen((int id) {
+      if (id == 1) {
+        mapview.dismiss();
+      }
+    });
+    mapview.onMapReady.listen((_) {
+      mapview.setMarkers(marker);
+    });
   }
 
   Widget _buildAddressPrice(String address, double price) {
@@ -129,6 +130,7 @@ class ProductDetails extends StatelessWidget {
             ),
           ],
         ),
+        floatingActionButton: ProductFab(),
       ),
     );
   }

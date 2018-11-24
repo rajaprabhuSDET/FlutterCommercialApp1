@@ -11,6 +11,7 @@ class ProductInfo {
   final String email;
   final String userID;
   final LocationData location;
+  final String imagePath;
 
   ProductInfo(
       {@required this.id,
@@ -21,5 +22,6 @@ class ProductInfo {
       @required this.userID,
       @required this.description,
       @required this.location,
+      @required this.imagePath,
       this.isFavourite=false});
 }

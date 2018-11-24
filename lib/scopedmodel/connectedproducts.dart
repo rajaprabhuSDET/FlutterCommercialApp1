@@ -83,8 +83,6 @@ mixin ProductModel on ConnectedProductsModel {
         return null;
       }
       final responseData = json.decode(response.body);
-      print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-      print(json.decode(response.body));
       return responseData;
     } catch (error) {
       print(error);
@@ -108,13 +106,11 @@ mixin ProductModel on ConnectedProductsModel {
     Map<String, dynamic> newproductt = {
       'title': title,
       'description': description,
-      'image':
-          'https://s3.ap-south-1.amazonaws.com/zoom-blog-image/2015/10/155670-3.jpg',
       'price': price,
       'email': _authUser.email,
       'userID': _authUser.userid,
-      'imagePath' : uploadData['imagePath'],
-      'imageURL' : uploadData['imageUrl'],
+      'imagePath': uploadData['imagePath'],
+      'imageURL': uploadData['imageUrl'],
       'loc_lat': locData.latitude,
       'loc_lng': locData.longitude,
       'loc_address': locData.address
@@ -133,6 +129,7 @@ mixin ProductModel on ConnectedProductsModel {
           id: responsedata['name'],
           title: title,
           description: description,
+          imagePath: uploadData['imagePath'],
           image: uploadData['imageUrl'],
           price: price,
           location: locData,
@@ -149,14 +146,27 @@ mixin ProductModel on ConnectedProductsModel {
     }
   }
 
-  Future<bool> updateGlass(String title, String description, String image,
-      double price, LocationData locData) {
+  Future<bool> updateGlass(String title, String description, File image,
+      double price, LocationData locData) async {
     _isLoading = true;
     notifyListeners();
+    String imageURL = selectedProduct.image;
+    String imagePath = selectedProduct.imagePath;
+    if (image != null) {
+      final uploadData = await uploadImage(image);
+      if (uploadData == null) {
+        print('upload failed');
+        return false;
+      }
+
+      imageURL = uploadData['imageUrl'];
+      imagePath = uploadData['imagePath'];
+    }
     final Map<String, dynamic> updatedProduct = {
       'title': title,
       'description': description,
-      'image': image,
+      'imagePath': imagePath,
+      'imageURL': imageURL,
       'price': price,
       'email': selectedProduct.email,
       'userID': selectedProduct.userID,
@@ -164,29 +174,29 @@ mixin ProductModel on ConnectedProductsModel {
       'loc_lng': locData.longitude,
       'loc_address': locData.address
     };
-    return http
-        .put(
-            'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}.json?auth=${_authUser.token}',
-            body: json.encode(updatedProduct))
-        .then((http.Response response) {
+    try {
+      final http.Response response = await http.put(
+          'https://fluttertrial.firebaseio.com/product/${selectedProduct.id}.json?auth=${_authUser.token}',
+          body: json.encode(updatedProduct));
+      _isLoading = false;
       final updatedproductinfo = ProductInfo(
           id: selectedProduct.id,
           title: title,
           description: description,
-          image: image,
+          image: imageURL,
+          imagePath: imagePath,
           price: price,
           location: locData,
           email: selectedProduct.email,
           userID: selectedProduct.userID);
       _products[selectedProductIndex] = updatedproductinfo;
-      _isLoading = false;
       notifyListeners();
       return true;
-    }).catchError((error) {
+    } catch (error) {
       _isLoading = false;
       notifyListeners();
       return false;
-    });
+    }
   }
 
   Future<bool> deleteGlass() {
@@ -223,8 +233,8 @@ mixin ProductModel on ConnectedProductsModel {
         .get(
             'https://fluttertrial.firebaseio.com/product.json?auth=${_authUser.token}')
         .then<Null>((http.Response response) {
-      final Map<String, dynamic> fetchedProducts = json.decode(response.body);
       final List<ProductInfo> fetchedProductList = [];
+      final Map<String, dynamic> fetchedProducts = json.decode(response.body);
       if (fetchedProducts == null) {
         _isLoading = false;
         notifyListeners();
@@ -235,7 +245,8 @@ mixin ProductModel on ConnectedProductsModel {
         final ProductInfo productinfos = ProductInfo(
             title: value['title'],
             description: value['description'],
-            image: value['image'],
+            imagePath: value['imagePath'],
+            image: value['imageURL'],
             price: value['price'],
             location: LocationData(
                 address: value['loc_address'],
@@ -252,8 +263,8 @@ mixin ProductModel on ConnectedProductsModel {
       });
       _products = onlyForUser
           ? fetchedProductList.where((ProductInfo productinfo) {
-              return productinfo.id == _authUser.userid;
-            })
+              return productinfo.userID == _authUser.userid;
+            }).toList()
           : fetchedProductList;
       _isLoading = false;
       notifyListeners();
@@ -273,6 +284,7 @@ mixin ProductModel on ConnectedProductsModel {
         id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
+        imagePath: selectedProduct.imagePath,
         image: selectedProduct.image,
         price: selectedProduct.price,
         location: selectedProduct.location,
@@ -299,6 +311,7 @@ mixin ProductModel on ConnectedProductsModel {
           title: selectedProduct.title,
           description: selectedProduct.description,
           image: selectedProduct.image,
+          imagePath: selectedProduct.imagePath,
           price: selectedProduct.price,
           email: selectedProduct.email,
           location: selectedProduct.location,
@@ -398,7 +411,7 @@ mixin UserModel on ConnectedProductsModel {
       }
       final String userid = prefs.getString('userid');
       final String email = prefs.getString('email');
-      final tokenLifeSpan = parsedexpiryTime.difference(now).inSeconds;
+      final int tokenLifeSpan = parsedexpiryTime.difference(now).inSeconds;
       _authUser = UserInfo(userid: userid, email: email, token: token);
       _userSubject.add(true);
       setAuthTimeOut(tokenLifeSpan);
