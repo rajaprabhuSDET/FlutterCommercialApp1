@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:map_view/map_view.dart';
+import 'dart:async';
 import './pages/home.dart';
 import './pages/productdetails.dart';
 import './pages/products_admin.dart';
@@ -26,9 +28,23 @@ class MyApp extends StatefulWidget {
 class MyAppStateless extends State<MyApp> {
   final MainModel _model = MainModel();
   bool _isAuthenticated = false;
+  final _platformChannerl = MethodChannel('flutter/battery');
+
+  Future<Null> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final int result = await _platformChannerl.invokeMethod('getBatteryLevel');
+      batteryLevel = 'Battery Level is $result %.';
+    } catch (error) {
+      print(error);
+      batteryLevel = 'failed to get battery level';
+    }
+    print(batteryLevel);
+  }
   
   @override
   void initState() {
+    _getBatteryLevel();
     _model.autoAuthenticate();
     _model.userSubject.listen((bool isAuthenticated) {
       setState(() {
@@ -42,6 +58,7 @@ class MyAppStateless extends State<MyApp> {
     return ScopedModel<MainModel>(
       model: _model,
       child: MaterialApp(
+        title: 'EasyList',
         theme: ThemeData(
             brightness: Brightness.light,
             primarySwatch: Colors.deepOrange,
