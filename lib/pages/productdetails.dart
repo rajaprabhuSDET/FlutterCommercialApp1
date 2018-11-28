@@ -51,7 +51,7 @@ class ProductDetails extends StatelessWidget {
             initialCameraPosition: camerapositon,
             mapViewType: MapViewType.normal,
             title: 'Product Location'),
-        toolbarActions: [ToolbarAction('ToolBar', 1)]);
+        toolbarActions: [ToolbarAction('Close', 1)]);
     mapview.onToolbarAction.listen((int id) {
       if (id == 1) {
         mapview.dismiss();
